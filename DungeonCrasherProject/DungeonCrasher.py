@@ -112,13 +112,13 @@ def sceneryCollision(objectPosX,objectPosY):
         return True
     if objectPosX >= 519 and objectPosX <= 551 and objectPosY >= 234 and objectPosY <= 271:
         return True
-    if objectPosY<=115:
+    if objectPosY<=105:
         return True
     if objectPosX>=272-player_width and objectPosX<=302 and objectPosY>=134-player_height and objectPosY<=160:
         return True
     if objectPosX>=240-player_width and objectPosX<=265 and objectPosY>=140-player_height and objectPosY<=157:
         return True
-    if objectPosX>=356-player_width and objectPosX<=395 and objectPosY>=127-player_height and objectPosY<=141:
+    if objectPosX>=356-player_width and objectPosX<=395 and objectPosY>=127-player_height and objectPosY<=130:
         return True
     if objectPosY <=147 and objectPosX>=400 and objectPosX<=463:
         return True
@@ -145,6 +145,8 @@ def sceneryCollision(objectPosX,objectPosY):
     if objectPosX >= 287 - player_width and objectPosX <= 305 and objectPosY >= 309 - player_height and objectPosY <= 333:
         return True
     if objectPosX >= 270 - player_width and objectPosX <= 282 and objectPosY >= 295 - player_height and objectPosY <= 343:
+        return True
+    if objectPosY <=133 and objectPosX<=285:
         return True
 def movePlayer(initialx, initialy):
     player_pos_x = initialx
