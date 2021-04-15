@@ -6,10 +6,10 @@ background = Sprite("background.png",18)
 background.set_total_duration(1100)
 teclado = Window.get_keyboard()
 mouse = Window.get_mouse()
-player_parado_esquerda = Sprite("player_parado_esquerda.png",2)
-player_parado_direita = Sprite("player_parado_direita.png",2)
-player_walk_esquerda = Sprite("player_walk_esquerda.png",8)
-player_walk_direita = Sprite("player_walk_direita.png",8)
+player_parado_esquerda = Sprite("Actors/player_parado_esquerda.png",2)
+player_parado_direita = Sprite("Actors/player_parado_direita.png",2)
+player_walk_esquerda = Sprite("Actors/player_walk_esquerda.png",8)
+player_walk_direita = Sprite("Actors/player_walk_direita.png",8)
 player_parado_esquerda.set_total_duration(1000)
 player_parado_direita.set_total_duration(1000)
 player_walk_esquerda.set_total_duration(1000)
@@ -176,21 +176,21 @@ def shoot(initialx,initialy,direction):
     tiroY = initialy
     if teclado.key_pressed("UP"):
         direction = "u"
-        tiro = Sprite("tiroVerticalCima.png", 4)
+        tiro = Sprite("Actors/tiroVerticalCima.png", 4)
     elif teclado.key_pressed("DOWN"):
         direction = "d"
-        tiro = Sprite("tiroVerticalBaixo.png",4)
+        tiro = Sprite("Actors/tiroVerticalBaixo.png",4)
     else:
         direction = getLastDirection(direction)
         if direction == "r":
-            tiro = Sprite("tiroLateralDireita.png", 4)
+            tiro = Sprite("Actors/tiroLateralDireita.png", 4)
         else:
-            tiro = Sprite("tiroLateralEsquerda.png", 4)
+            tiro = Sprite("Actors/tiroLateralEsquerda.png", 4)
     tiros.append([tiro, tiroX, tiroY, direction])
     return (tiros)
 
 def explosaoGen(posX,posY):
-    explosao = Sprite("explosao.png", 8)
+    explosao = Sprite("Actors/explosao.png", 8)
     explosao.set_total_duration(1000)
     explosao.set_position(posX,posY)
     explosoes.append([explosao,0])
