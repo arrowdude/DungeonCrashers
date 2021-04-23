@@ -129,22 +129,88 @@ def drawScene(objects):
 
 ###################### Player mechanics ######################
 class player:
-    def __init__(self, parado_direita, parado_esquerda,andando_direita,andando_esquerda):
-        self.parado_direita = parado_direita
-        self.parado_esquerda = parado_esquerda
-        self.andando_direita = andando_direita
-        self.andando_esquerda = andando_esquerda
+    def __init__(self,life):
+        self.parado_direita = Sprite("Actors/player_parado_direita.png",2)
+        self.parado_esquerda = Sprite("Actors/player_parado_esquerda.png",2)
+        self.andando_direita = Sprite("Actors/player_walk_direita.png",8)
+        self.andando_esquerda = Sprite("Actors/player_walk_esquerda.png",8)
+        self.life = life
 
-def getPlayerSprite(direction, player, teclado):
-    if teclado.key_pressed("LEFT"):
-        return (player.andando_esquerda)
-    elif teclado.key_pressed("RIGHT"):
-        return (player.andando_direita)
+        # Player invencível
+        self.parado_direitaI = Sprite("Actors/player_parado_direita_Inv.png", 4)
+        self.parado_esquerdaI = Sprite("Actors/player_parado_esquerda_Inv.png", 4)
+        self.andando_direitaI = Sprite("Actors/player_andando_direita_Inv.png", 16)
+        self.andando_esquerdaI = Sprite("Actors/player_andando_esquerda_Inv.png", 16)
+        self.invincible = 0
+        self.time_invincible = 0
+
+def getLife(life):
+    lifePNG = Sprite("Actors/Life.png",1)
+    if life > 1:
+        prim = Sprite("Actors/Life-full.png",1)
+    elif life == 1:
+        prim = Sprite("Actors/Life-half.png", 1)
     else:
-        if direction == "r":
-            return (player.parado_direita)
-        elif direction == "l":
-            return (player.parado_esquerda)
+        prim = Sprite("Actors/Life-Empty.png", 1)
+    if life > 3:
+        seg = Sprite("Actors/Life-full.png",1)
+    elif life == 3:
+        seg = Sprite("Actors/Life-half.png", 1)
+    else:
+        seg = Sprite("Actors/Life-Empty.png", 1)
+    if life > 5:
+        ter = Sprite("Actors/Life-full.png",1)
+    elif life == 5:
+        ter = Sprite("Actors/Life-half.png", 1)
+    else:
+        ter = Sprite("Actors/Life-Empty.png", 1)
+    prim.y = seg.y = ter.y = lifePNG.y = 25
+    prim.x = 50 + prim.width
+    seg.x = 100 + prim.width
+    ter.x = 150 + prim.width
+    lifePNG.x = 10
+    prim.draw()
+    seg.draw()
+    ter.draw()
+    lifePNG.draw()
+
+
+    return prim,seg, ter
+
+def playerCollideEnemies(player,sprite,enemies,janela):
+    if player.invincible:
+        if player.time_invincible > 2:
+            player.invincible = 0
+            player.time_invincible = 0
+        else:
+            player.time_invincible += janela.delta_time()
+    else:
+        for enemy in enemies:
+            if Collision.collided(sprite,enemy[2]):
+                player.life -= 1
+                player.invincible = 1
+                
+def getPlayerSprite(direction, player, teclado):
+    if not player.invincible:
+        if teclado.key_pressed("LEFT"):
+            return (player.andando_esquerda)
+        elif teclado.key_pressed("RIGHT"):
+            return (player.andando_direita)
+        else:
+            if direction == "r":
+                return (player.parado_direita)
+            elif direction == "l":
+                return (player.parado_esquerda)
+    else:
+        if teclado.key_pressed("LEFT"):
+            return (player.andando_esquerdaI)
+        elif teclado.key_pressed("RIGHT"):
+            return (player.andando_direitaI)
+        else:
+            if direction == "r":
+                return (player.parado_direitaI)
+            elif direction == "l":
+                return (player.parado_esquerdaI)
 
 def getLastDirection(direction, teclado):
     if teclado.key_pressed("LEFT"):
@@ -227,7 +293,6 @@ def explosoesUpdate(explosoes, janela):
 ############################################
 
 ###################### Enemy mechanics ######################
-
 class enemy:
     def __init__(self, direita, esquerda):
         self.direita = direita
@@ -241,63 +306,50 @@ def getMaximum(initialEnemyX,initialEnemyY, playerX, playerY, Enemy):
     while (not sceneryCollision(enemyPosXMaximum, enemyPosYMaximum, Enemy)):
         if initialEnemyX > playerX:
             enemyPosXMaximum = enemyPosXMaximum - 40
-            if enemyPosXMaximum > playerX:
+            if enemyPosXMaximum < playerX:
                 break
         elif initialEnemyX < playerX:
             enemyPosXMaximum = enemyPosXMaximum + 40
-            if enemyPosXMaximum < playerX:
+            if enemyPosXMaximum > playerX:
                 break
         if initialEnemyY > playerY:
             enemyPosYMaximum = enemyPosYMaximum -40
-            if enemyPosYMaximum > playerY:
+            if enemyPosYMaximum < playerY:
                 break
         elif initialEnemyY < playerY:
             enemyPosYMaximum = enemyPosYMaximum + 40
-            if enemyPosYMaximum < playerY:
+            if enemyPosYMaximum > playerY:
                 break
     return([enemyPosXMaximum,enemyPosYMaximum])
 
 def moveEnemy(playerX, playerY, initialEnemyX, initialEnemyY, Enemy, janela):
     enemyPosX = initialEnemyX
     enemyPosY = initialEnemyY
-    enemyPosXMaximum, enemyPosYMaximum = getMaximum(initialEnemyX,initialEnemyY, playerX, playerY, Enemy)
-    print("Maximum",enemyPosXMaximum, enemyPosYMaximum)
-    print("Enemy",initialEnemyX,initialEnemyY)
-    print("Player",playerX, playerY)
-    if initialEnemyX < playerX:
-        if enemyPosXMaximum < playerX:
-            velX = 40
-            sprite = Enemy.direita
-        else:
-            velX = -40
-            sprite = Enemy.esquerda
-    elif initialEnemyX > playerX:
-        if enemyPosXMaximum > playerX:
-            velX = -40
-            sprite = Enemy.esquerda
-        else:
-            velX = 40
-            sprite = Enemy.direita
-    if initialEnemyY < playerY:
-        if enemyPosYMaximum < playerY:
-            velY= 40
-        else:
-            velY = -40
-    elif initialEnemyX > playerY:
-        if enemyPosYMaximum > playerY:
-            velY = -40
-        else:
-            velY = 40
+    if initialEnemyX >= playerX:
+        velX = -40
+        sprite = Enemy.esquerda
+    elif initialEnemyX < playerX:
+        velX = 40
+        sprite = Enemy.direita
+    if initialEnemyY >= playerY:
+        velY = -40
+    elif initialEnemyY < playerY:
+        velY = 40
     if not sceneryCollision(enemyPosX + velX * janela.delta_time(), enemyPosY, Enemy) and not collidedLake(enemyPosX + velX * janela.delta_time(), enemyPosY, Enemy):
         enemyPosX = enemyPosX + velX*janela.delta_time()
     if not sceneryCollision(enemyPosX, enemyPosY + velY * janela.delta_time(), Enemy) and not collidedLake(enemyPosX, enemyPosY + velY * janela.delta_time(), Enemy):
         enemyPosY = enemyPosY+ velY*janela.delta_time()
     return([enemyPosX, enemyPosY, sprite, Enemy])
 
-def updateEnemyPosition(initialx,initialy,enemies,janela):
+def updateEnemyPosition(initialx,initialy,enemies, tiros, explosoes, janela):
     for enemy in enemies:
         enemy[0], enemy[1], enemy[2] = moveEnemy(initialx,initialy,enemy[0],enemy[1], enemy[3],janela)[0], moveEnemy(initialx,initialy,enemy[0],enemy[1],enemy[3],janela)[1], moveEnemy(initialx,initialy,enemy[0],enemy[1],enemy[3], janela)[2]
         enemy[2].set_position(enemy[0],enemy[1])
         enemy[2].set_total_duration(1000)
         enemy[2].draw()
         enemy[2].update()
+        for tiro in tiros:
+            if Collision.collided(enemy[2], tiro[0]):
+                tiros.remove(tiro)
+                enemies.remove(enemy)
+                explosaoGen(enemy[0], enemy[1], explosoes)

@@ -12,7 +12,7 @@ mouse = Window.get_mouse()
 
 ##Sprites##
 ##Player##
-player = DungeonCrashersLib.player(Sprite("Actors/player_parado_direita.png",2),Sprite("Actors/player_parado_esquerda.png",2), Sprite("Actors/player_walk_direita.png",8), Sprite("Actors/player_walk_esquerda.png",8))
+player = DungeonCrashersLib.player(6)
 ##Enemies##
 orc1 = DungeonCrashersLib.enemy(Sprite("Actors/Orc1Direita.png",8), Sprite("Actors/Orc1Esquerda.png",8))
 orc2 = DungeonCrashersLib.enemy(Sprite("Actors/Orc2Direita.png", 8), Sprite("Actors/Orc2Esquerda.png", 8))
@@ -59,6 +59,8 @@ while True:
     DungeonCrashersLib.getPlayerSprite(direction, player, teclado).draw()
     DungeonCrashersLib.getPlayerSprite(direction, player, teclado).update()
     DungeonCrashersLib.tirosUpdate(tiros, velTiro, janela, explosoes, enemies)
-    DungeonCrashersLib.updateEnemyPosition(initialx, initialy, enemies, janela)
+    DungeonCrashersLib.updateEnemyPosition(initialx, initialy, enemies, tiros, explosoes, janela)
+    DungeonCrashersLib.getLife(player.life)
     DungeonCrashersLib.explosoesUpdate(explosoes, janela)
+    DungeonCrashersLib.playerCollideEnemies(player, DungeonCrashersLib.getPlayerSprite(direction, player, teclado),enemies, janela)
     janela.update()
