@@ -1,10 +1,11 @@
 from PPlay.window import *
 from PPlay.sprite import *
+from PPlay.collision import *
 ###################### Variables and Sprites ######################
 
 ############################################
 
-###################### Collisions with Scenery ######################
+###################### Collisions ######################
 
 def sceneryCollision(objectPosX,objectPosY,actor):
     if objectPosX >= 573 and objectPosY >= 200 and objectPosY <= 315:
@@ -181,7 +182,7 @@ def explosaoGen(posX,posY,explosoes):
     explosao.set_position(posX,posY)
     explosoes.append([explosao,0])
 
-def tirosUpdate(tiros, velTiro, janela, explosoes):
+def tirosUpdate(tiros, velTiro, janela, explosoes, enemies):
     for tiro in tiros:
         tiro[0].set_position(tiro[1], tiro[2])
         tiro[0].set_total_duration(1000)
@@ -195,6 +196,12 @@ def tirosUpdate(tiros, velTiro, janela, explosoes):
             tiro[1] = tiro[1] - velTiro*janela.delta_time()
         elif tiro[3] == "r":
             tiro[1] = tiro[1] + velTiro * janela.delta_time()
+        for enemy in enemies:
+            if Collision.collided(enemy[2], tiro[0]):
+                explosaoGen(tiro[1], tiro[2], explosoes)
+                tiros.remove(tiro)
+                enemies.remove(enemy)
+                return 0
         if sceneryCollision(tiro[1], tiro[2], tiro[0]):
             explosaoGen(tiro[1],tiro[2], explosoes)
             tiros.remove(tiro)
@@ -212,8 +219,25 @@ def explosoesUpdate(explosoes, janela):
 ###################### Enemy mechanics ######################
 
 class enemy:
-    def __init__(self, direita, esquerda, height, width):
+    def __init__(self, direita, esquerda):
         self.direita = direita
         self.esquerda = esquerda
-        self.height = height
-        self.width = width
+        self.height = direita.height
+        self.width = direita.width
+
+def moveEnemy(playerX, playerY, initialEnemyX, initialEnemyY, Enemy, enemies, janela):
+    enemyPosX = initialEnemyX
+    enemyPosY =initialEnemyY
+    if initialEnemyX >= playerX:
+        velX, sprite = -60, Enemy.esquerda
+    elif initialEnemyX < playerX:
+        velX, sprite = 60, Enemy.direita
+    if initialEnemyY > playerY:
+        velY =  - 60
+    elif initialEnemyY < playerY:
+        velY =   60
+    if not sceneryCollision(enemyPosX + velX * janela.delta_time(), enemyPosY, Enemy) and not collidedLake(enemyPosX + velX * janela.delta_time(), enemyPosY, Enemy):
+        enemyPosX = enemyPosX + velX*janela.delta_time()
+    if not sceneryCollision(enemyPosX, enemyPosY + velY * janela.delta_time(), Enemy) and not collidedLake(enemyPosX, enemyPosY + velY * janela.delta_time(), Enemy):
+        enemyPosY = enemyPosY+ velY*janela.delta_time()
+    return([enemyPosX, enemyPosY, sprite, Enemy])

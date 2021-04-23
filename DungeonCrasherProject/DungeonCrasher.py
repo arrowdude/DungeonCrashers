@@ -1,5 +1,6 @@
 from PPlay.window import *
 from PPlay.sprite import *
+from PPlay.collision import *
 import random
 import DungeonCrashersLib
 
@@ -20,20 +21,24 @@ player_parado_direita.set_total_duration(1000)
 player_walk_esquerda.set_total_duration(1000)
 player_walk_direita.set_total_duration(1000)
 
-##MEnemies##
-orc1 = DungeonCrashersLib.enemy(Sprite("Actors/Orc1Direita.png",8), Sprite("Actors/Orc1Esquerda.png",8), Sprite("Actors/Orc1Esquerda.png",8).height, Sprite("Actors/Orc1Esquerda.png",8).width)
+##Enemies##
+orc1 = DungeonCrashersLib.enemy(Sprite("Actors/Orc1Direita.png",8), Sprite("Actors/Orc1Esquerda.png",8))
+orc2 = DungeonCrashersLib.enemy(Sprite("Actors/Orc2Direita.png", 8), Sprite("Actors/Orc2Esquerda.png", 8))
+orc3 = DungeonCrashersLib.enemy(Sprite("Actors/Orc3Direita.png", 8), Sprite("Actors/Orc3Esquerda.png", 8))
 ##
 
 #Variaveis
-initialEnemyX = 436
-initialEnemyY = 131
+initialEnemyX = 435
+initialEnemyY = 165
 initialx = 400
 initialy = 300
 direction = "r"
 velTiro = 200
-recarga = 0
+recargaShoot = 0
+recargaEnemies = 0
 tiros = []
 explosoes = []
+enemies = []
 ##
 
 def getPlayerSprite(direction):
@@ -47,39 +52,34 @@ def getPlayerSprite(direction):
         elif direction == "l":
             return(player_parado_esquerda)
 
-def moveEnemy(playerX, playerY, initialEnemyX, initialEnemyY, Enemy):
-    enemyPosX = initialEnemyX
-    enemyPosY =initialEnemyY
-    if initialEnemyX >= playerX:
-        velX, sprite = -60, Enemy.esquerda
-    elif initialEnemyX < playerX:
-        velX, sprite = 60, Enemy.direita
-    if initialEnemyY > playerY:
-        velY =  - 60
-    elif initialEnemyY < playerY:
-        velY =  + 60
-    if not DungeonCrashersLib.sceneryCollision(enemyPosX + velX * janela.delta_time(), enemyPosY, Enemy) and not DungeonCrashersLib.collidedLake(enemyPosX + velX * janela.delta_time(), enemyPosY, Enemy):
-        enemyPosX = enemyPosX + velX*janela.delta_time()
-    if not DungeonCrashersLib.sceneryCollision(enemyPosX, enemyPosY + velY * janela.delta_time(), Enemy) and not DungeonCrashersLib.collidedLake(enemyPosX, enemyPosY + velY * janela.delta_time(), Enemy):
-        enemyPosY = enemyPosY+ velY*janela.delta_time()
-    return([enemyPosX, enemyPosY, sprite])
-
 
 while True:
-    recarga = recarga + 3*janela.delta_time()
+    ##Variables##
+    recargaShoot = recargaShoot + janela.delta_time()
+    recargaEnemies = recargaEnemies + 3*janela.delta_time()
     direction = DungeonCrashersLib.getLastDirection(direction, teclado)
     initialx = DungeonCrashersLib.movePlayer(initialx, initialy, player_parado_esquerda, janela, teclado)[0]
     initialy = DungeonCrashersLib.movePlayer(initialx, initialy, player_parado_esquerda, janela, teclado)[1]
-    initialEnemyX, initialEnemyY, orc1Sprite = moveEnemy(initialx,initialy,initialEnemyX,initialEnemyY,orc1)[0], moveEnemy(initialx,initialy,initialEnemyX,initialEnemyY,orc1)[1],moveEnemy(initialx,initialy,initialEnemyX,initialEnemyY,orc1)[2]
-    while teclado.key_pressed("SPACE") and recarga>1:
-        DungeonCrashersLib.shoot(initialx,initialy,direction, teclado, tiros)
-        recarga = 0
-    getPlayerSprite(direction).set_position(initialx,initialy)
+    ##
+    ##Drawing background and other objects always on screen##
     DungeonCrashersLib.drawScene([background, getPlayerSprite(direction)])
-    DungeonCrashersLib.tirosUpdate(tiros, velTiro, janela, explosoes)
+    ##
+    if mouse.is_button_pressed(BUTTON_LEFT):
+        print(mouse.get_position())
+    if recargaEnemies >10:
+        pick = random.choice([orc1,orc2,orc3])
+        enemies.append([initialEnemyX,initialEnemyY, pick.direita,pick])
+        recargaEnemies = 0
+    for enemy in enemies:
+        enemy[0], enemy[1], enemy[2] = DungeonCrashersLib.moveEnemy(initialx,initialy,enemy[0],enemy[1], enemy[3], enemies, janela)[0], DungeonCrashersLib.moveEnemy(initialx,initialy,enemy[0],enemy[1],enemy[3], enemies, janela)[1], DungeonCrashersLib.moveEnemy(initialx,initialy,enemy[0],enemy[1],enemy[3], enemies, janela)[2]
+        enemy[2].set_position(enemy[0],enemy[1])
+        enemy[2].set_total_duration(1000)
+        enemy[2].draw()
+        enemy[2].update()
+    while teclado.key_pressed("SPACE") and recargaShoot>1:
+        DungeonCrashersLib.shoot(initialx,initialy,direction, teclado, tiros)
+        recargaShoot = 0
+    getPlayerSprite(direction).set_position(initialx,initialy)
+    DungeonCrashersLib.tirosUpdate(tiros, velTiro, janela, explosoes, enemies)
     DungeonCrashersLib.explosoesUpdate(explosoes, janela)
-    orc1Sprite.set_position(initialEnemyX,initialEnemyY)
-    orc1Sprite.draw()
-    orc1Sprite.set_total_duration(1000)
-    orc1Sprite.update()
     janela.update()
