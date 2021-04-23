@@ -235,36 +235,68 @@ class enemy:
         self.height = direita.height
         self.width = direita.width
 
-def moveEnemy(playerX, playerY, initialEnemyX, initialEnemyY, Enemy, enemies, janela):
-    enemyPosX = initialEnemyX
-    enemyPosY =initialEnemyY
+def getMaximum(initialEnemyX,initialEnemyY, playerX, playerY, Enemy):
     enemyPosXMaximum = initialEnemyX
     enemyPosYMaximum = initialEnemyY
-    while (not sceneryCollision(enemyPosXMaximum, enemyPosYMaximum, enemy)):
-        if initialEnemyX >= playerX:
-            enemyPosXMaximum = enemyPosXMaximum + 40
-        elif initialEnemyX < playerX:
+    while (not sceneryCollision(enemyPosXMaximum, enemyPosYMaximum, Enemy)):
+        if initialEnemyX > playerX:
             enemyPosXMaximum = enemyPosXMaximum - 40
+            if enemyPosXMaximum > playerX:
+                break
+        elif initialEnemyX < playerX:
+            enemyPosXMaximum = enemyPosXMaximum + 40
+            if enemyPosXMaximum < playerX:
+                break
         if initialEnemyY > playerY:
-            enemyPosYMaximum = enemyPosYMaximum - 40
+            enemyPosYMaximum = enemyPosYMaximum -40
+            if enemyPosYMaximum > playerY:
+                break
         elif initialEnemyY < playerY:
             enemyPosYMaximum = enemyPosYMaximum + 40
-    if initialEnemyX >= playerX:
-        velX, sprite = -40, Enemy.esquerda
-    elif initialEnemyX < playerX:
-        velX, sprite = 40, Enemy.direita
-    if initialEnemyY > playerY:
-        velY =  - 40
-    elif initialEnemyY < playerY:
-        velY =   40
+            if enemyPosYMaximum < playerY:
+                break
+    return([enemyPosXMaximum,enemyPosYMaximum])
+
+def moveEnemy(playerX, playerY, initialEnemyX, initialEnemyY, Enemy, janela):
+    enemyPosX = initialEnemyX
+    enemyPosY = initialEnemyY
+    enemyPosXMaximum, enemyPosYMaximum = getMaximum(initialEnemyX,initialEnemyY, playerX, playerY, Enemy)
+    print("Maximum",enemyPosXMaximum, enemyPosYMaximum)
+    print("Enemy",initialEnemyX,initialEnemyY)
+    print("Player",playerX, playerY)
+    if initialEnemyX < playerX:
+        if enemyPosXMaximum < playerX:
+            velX = 40
+            sprite = Enemy.direita
+        else:
+            velX = -40
+            sprite = Enemy.esquerda
+    elif initialEnemyX > playerX:
+        if enemyPosXMaximum > playerX:
+            velX = -40
+            sprite = Enemy.esquerda
+        else:
+            velX = 40
+            sprite = Enemy.direita
+    if initialEnemyY < playerY:
+        if enemyPosYMaximum < playerY:
+            velY= 40
+        else:
+            velY = -40
+    elif initialEnemyX > playerY:
+        if enemyPosYMaximum > playerY:
+            velY = -40
+        else:
+            velY = 40
     if not sceneryCollision(enemyPosX + velX * janela.delta_time(), enemyPosY, Enemy) and not collidedLake(enemyPosX + velX * janela.delta_time(), enemyPosY, Enemy):
         enemyPosX = enemyPosX + velX*janela.delta_time()
     if not sceneryCollision(enemyPosX, enemyPosY + velY * janela.delta_time(), Enemy) and not collidedLake(enemyPosX, enemyPosY + velY * janela.delta_time(), Enemy):
         enemyPosY = enemyPosY+ velY*janela.delta_time()
     return([enemyPosX, enemyPosY, sprite, Enemy])
+
 def updateEnemyPosition(initialx,initialy,enemies,janela):
     for enemy in enemies:
-        enemy[0], enemy[1], enemy[2] = moveEnemy(initialx,initialy,enemy[0],enemy[1], enemy[3], enemies, janela)[0], moveEnemy(initialx,initialy,enemy[0],enemy[1],enemy[3], enemies, janela)[1], moveEnemy(initialx,initialy,enemy[0],enemy[1],enemy[3], enemies, janela)[2]
+        enemy[0], enemy[1], enemy[2] = moveEnemy(initialx,initialy,enemy[0],enemy[1], enemy[3],janela)[0], moveEnemy(initialx,initialy,enemy[0],enemy[1],enemy[3],janela)[1], moveEnemy(initialx,initialy,enemy[0],enemy[1],enemy[3], janela)[2]
         enemy[2].set_position(enemy[0],enemy[1])
         enemy[2].set_total_duration(1000)
         enemy[2].draw()
