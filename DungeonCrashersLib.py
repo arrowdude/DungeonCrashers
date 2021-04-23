@@ -1,3 +1,10 @@
+from PPlay.window import *
+from PPlay.sprite import *
+###################### Variables and Sprites ######################
+
+############################################
+
+###################### Collisions with Scenery ######################
 
 def sceneryCollision(objectPosX,objectPosY,actor):
     if objectPosX >= 573 and objectPosY >= 200 and objectPosY <= 315:
@@ -108,3 +115,105 @@ def collidedLake(objectPosX,objectPosY,actor):
         return True
     if objectPosX >= 300 - actor.width and objectPosX <= 370 and objectPosY >= 270 - actor.height and objectPosY <= 260:
         return True
+############################################
+
+###################### Drawing ######################
+
+def drawScene(objects):
+    for item in objects:
+        item.draw()
+        item.update()
+
+############################################
+
+###################### Player mechanics ######################
+
+def getLastDirection(direction, teclado):
+    if teclado.key_pressed("LEFT"):
+        direction = "l"
+    elif teclado.key_pressed("RIGHT"):
+        direction = "r"
+    return direction
+
+def movePlayer(initialx, initialy, player, janela, teclado):
+    player_pos_x = initialx
+    player_pos_y = initialy
+    if teclado.key_pressed("LEFT"):
+        player_vel_x = -100
+    elif teclado.key_pressed("RIGHT"):
+        player_vel_x = 100
+    else:
+        player_vel_x = 0
+    if teclado.key_pressed("UP"):
+        player_vel_y = -100
+    elif teclado.key_pressed("DOWN"):
+        player_vel_y = 100
+    else:
+        player_vel_y = 0
+
+    if not sceneryCollision(player_pos_x + player_vel_x * janela.delta_time(), player_pos_y, player) and not collidedLake(player_pos_x + player_vel_x * janela.delta_time(), player_pos_y, player):
+        player_pos_x = player_pos_x + player_vel_x*janela.delta_time()
+    if not sceneryCollision(player_pos_x, player_pos_y + player_vel_y * janela.delta_time(), player) and not collidedLake(player_pos_x, player_pos_y + player_vel_y * janela.delta_time(), player):
+        player_pos_y = player_pos_y + player_vel_y*janela.delta_time()
+    return([player_pos_x,player_pos_y])
+
+def shoot(initialx,initialy,direction, teclado, tiros):
+    tiroX = initialx
+    tiroY = initialy
+    if teclado.key_pressed("UP"):
+        direction = "u"
+        tiro = Sprite("Actors/tiroVerticalCima.png", 4)
+    elif teclado.key_pressed("DOWN"):
+        direction = "d"
+        tiro = Sprite("Actors/tiroVerticalBaixo.png",4)
+    else:
+        direction = getLastDirection(direction, teclado)
+        if direction == "r":
+            tiro = Sprite("Actors/tiroLateralDireita.png", 4)
+        else:
+            tiro = Sprite("Actors/tiroLateralEsquerda.png", 4)
+    tiros.append([tiro, tiroX, tiroY, direction])
+    return (tiros)
+
+def explosaoGen(posX,posY,explosoes):
+    explosao = Sprite("Actors/explosao.png", 8)
+    explosao.set_total_duration(1000)
+    explosao.set_position(posX,posY)
+    explosoes.append([explosao,0])
+
+def tirosUpdate(tiros, velTiro, janela, explosoes):
+    for tiro in tiros:
+        tiro[0].set_position(tiro[1], tiro[2])
+        tiro[0].set_total_duration(1000)
+        tiro[0].update()
+        tiro[0].draw()
+        if tiro[3] == "u":
+            tiro[2] = tiro[2] - velTiro * janela.delta_time()
+        elif tiro[3] == "d":
+            tiro[2] = tiro[2] + velTiro * janela.delta_time()
+        elif tiro[3] == "l":
+            tiro[1] = tiro[1] - velTiro*janela.delta_time()
+        elif tiro[3] == "r":
+            tiro[1] = tiro[1] + velTiro * janela.delta_time()
+        if sceneryCollision(tiro[1], tiro[2], tiro[0]):
+            explosaoGen(tiro[1],tiro[2], explosoes)
+            tiros.remove(tiro)
+
+def explosoesUpdate(explosoes, janela):
+    for explosao in explosoes:
+        explosao[1] += janela.delta_time()
+        explosao[0].draw()
+        explosao[0].update()
+        if explosao[1]>=1:
+            explosoes.remove(explosao)
+
+############################################
+
+###################### Enemy mechanics ######################
+
+class enemy:
+    def __init__(self, direita, esquerda, height, width):
+        self.direita = direita
+        self.esquerda = esquerda
+        self.height = height
+        self.width = width
