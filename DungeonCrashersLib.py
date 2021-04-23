@@ -128,6 +128,23 @@ def drawScene(objects):
 ############################################
 
 ###################### Player mechanics ######################
+class player:
+    def __init__(self, parado_direita, parado_esquerda,andando_direita,andando_esquerda):
+        self.parado_direita = parado_direita
+        self.parado_esquerda = parado_esquerda
+        self.andando_direita = andando_direita
+        self.andando_esquerda = andando_esquerda
+
+def getPlayerSprite(direction, player, teclado):
+    if teclado.key_pressed("LEFT"):
+        return (player.andando_esquerda)
+    elif teclado.key_pressed("RIGHT"):
+        return (player.andando_direita)
+    else:
+        if direction == "r":
+            return (player.parado_direita)
+        elif direction == "l":
+            return (player.parado_esquerda)
 
 def getLastDirection(direction, teclado):
     if teclado.key_pressed("LEFT"):
@@ -151,7 +168,6 @@ def movePlayer(initialx, initialy, player, janela, teclado):
         player_vel_y = 100
     else:
         player_vel_y = 0
-
     if not sceneryCollision(player_pos_x + player_vel_x * janela.delta_time(), player_pos_y, player) and not collidedLake(player_pos_x + player_vel_x * janela.delta_time(), player_pos_y, player):
         player_pos_x = player_pos_x + player_vel_x*janela.delta_time()
     if not sceneryCollision(player_pos_x, player_pos_y + player_vel_y * janela.delta_time(), player) and not collidedLake(player_pos_x, player_pos_y + player_vel_y * janela.delta_time(), player):
@@ -196,12 +212,6 @@ def tirosUpdate(tiros, velTiro, janela, explosoes, enemies):
             tiro[1] = tiro[1] - velTiro*janela.delta_time()
         elif tiro[3] == "r":
             tiro[1] = tiro[1] + velTiro * janela.delta_time()
-        for enemy in enemies:
-            if Collision.collided(enemy[2], tiro[0]):
-                explosaoGen(tiro[1], tiro[2], explosoes)
-                tiros.remove(tiro)
-                enemies.remove(enemy)
-                return 0
         if sceneryCollision(tiro[1], tiro[2], tiro[0]):
             explosaoGen(tiro[1],tiro[2], explosoes)
             tiros.remove(tiro)
@@ -228,16 +238,34 @@ class enemy:
 def moveEnemy(playerX, playerY, initialEnemyX, initialEnemyY, Enemy, enemies, janela):
     enemyPosX = initialEnemyX
     enemyPosY =initialEnemyY
+    enemyPosXMaximum = initialEnemyX
+    enemyPosYMaximum = initialEnemyY
+    while (not sceneryCollision(enemyPosXMaximum, enemyPosYMaximum, enemy)):
+        if initialEnemyX >= playerX:
+            enemyPosXMaximum = enemyPosXMaximum + 40
+        elif initialEnemyX < playerX:
+            enemyPosXMaximum = enemyPosXMaximum - 40
+        if initialEnemyY > playerY:
+            enemyPosYMaximum = enemyPosYMaximum - 40
+        elif initialEnemyY < playerY:
+            enemyPosYMaximum = enemyPosYMaximum + 40
     if initialEnemyX >= playerX:
-        velX, sprite = -60, Enemy.esquerda
+        velX, sprite = -40, Enemy.esquerda
     elif initialEnemyX < playerX:
-        velX, sprite = 60, Enemy.direita
+        velX, sprite = 40, Enemy.direita
     if initialEnemyY > playerY:
-        velY =  - 60
+        velY =  - 40
     elif initialEnemyY < playerY:
-        velY =   60
+        velY =   40
     if not sceneryCollision(enemyPosX + velX * janela.delta_time(), enemyPosY, Enemy) and not collidedLake(enemyPosX + velX * janela.delta_time(), enemyPosY, Enemy):
         enemyPosX = enemyPosX + velX*janela.delta_time()
     if not sceneryCollision(enemyPosX, enemyPosY + velY * janela.delta_time(), Enemy) and not collidedLake(enemyPosX, enemyPosY + velY * janela.delta_time(), Enemy):
         enemyPosY = enemyPosY+ velY*janela.delta_time()
     return([enemyPosX, enemyPosY, sprite, Enemy])
+def updateEnemyPosition(initialx,initialy,enemies,janela):
+    for enemy in enemies:
+        enemy[0], enemy[1], enemy[2] = moveEnemy(initialx,initialy,enemy[0],enemy[1], enemy[3], enemies, janela)[0], moveEnemy(initialx,initialy,enemy[0],enemy[1],enemy[3], enemies, janela)[1], moveEnemy(initialx,initialy,enemy[0],enemy[1],enemy[3], enemies, janela)[2]
+        enemy[2].set_position(enemy[0],enemy[1])
+        enemy[2].set_total_duration(1000)
+        enemy[2].draw()
+        enemy[2].update()
