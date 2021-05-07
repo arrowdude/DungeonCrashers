@@ -6,9 +6,8 @@ import random
 import Enemy
 import Player
 
-
 def main(janela):
-    
+
     background = Sprite("background.png",18)
     background.set_total_duration(1100)
     teclado = Window.get_keyboard()
@@ -51,7 +50,6 @@ def main(janela):
     FrankensteinBool = True
     TheDevilBool = True
     Boss = []
-    stuckX, stuckY, stuckXBoss,stuckYBoss = False, False, False, False
     waveSprites = [Sprite("Wave/Wave.png"),Sprite("Wave/1.png"),Sprite("Wave/2.png"),Sprite("Wave/3.png"),
                     Sprite("Wave/4.png"),Sprite("Wave/5.png"),Sprite("Wave/6.png"),
                     Sprite("Wave/7.png"),Sprite("Wave/8.png"),Sprite("Wave/9.png"),
@@ -64,6 +62,12 @@ def main(janela):
 
     while True:
         ##Variables##
+        if teclado.key_pressed("J"):
+            waveCounter = 5
+        elif teclado.key_pressed("K"):
+            waveCounter = 10
+        elif teclado.key_pressed("L"):
+            waveCounter = 15
         recargaShoot = recargaShoot + janela.delta_time()
         recargaEnemies += janela.delta_time()
         direction = Player.getLastDirection(direction, teclado)
@@ -115,6 +119,8 @@ def main(janela):
         Player.getLife(player.life)
         if player.life <= 0:
             return 0
+        if teclado.key_pressed("ESC"):
+            return -1
         Player.explosoesUpdate(explosoes, janela)
         Player.playerCollideEnemies(player, Player.getPlayerSprite(direction, player, teclado), enemies,Boss, janela)
         waveSprites[0].draw()

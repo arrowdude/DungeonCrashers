@@ -1,7 +1,7 @@
 from PPlay.window import *
 from PPlay.sprite import *
 from PPlay.sound import *
-from DungeonCrasherProject import DungeonCrasher
+import DungeonCrasher
 
 janela = Window(700,437)
 janela.set_title("Dungeon Crashers")
