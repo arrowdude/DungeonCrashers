@@ -16,11 +16,20 @@ mouse = Window.get_mouse()
 ##Sprites##
 ##Player##
 player = Player.player(6)
+
 ##Enemies##
 orc1 = Enemy.enemy(Sprite("Actors/Orc1Direita.png", 8), Sprite("Actors/Orc1Esquerda.png", 8),1)
 orc2 = Enemy.enemy(Sprite("Actors/Orc2Direita.png", 8), Sprite("Actors/Orc2Esquerda.png", 8),1)
 orc3 = Enemy.enemy(Sprite("Actors/Orc3Direita.png", 8), Sprite("Actors/Orc3Esquerda.png", 8),1)
 OrcChief = Enemy.enemy(Sprite("Actors/OrcChiefRight.png",8), Sprite("Actors/OrcChiefLeft.png",8),20)
+undead1 = Enemy.enemy(Sprite("Actors/Undead1Right.png", 8), Sprite("Actors/Undead1Left.png", 8),1)
+undead2 =Enemy.enemy(Sprite("Actors/Undead2Right.png", 8), Sprite("Actors/Undead2Left.png", 8),1)
+undead3 =Enemy.enemy(Sprite("Actors/Undead3Right.png", 8), Sprite("Actors/Undead3Left.png", 8),1)
+Frankenstein = Enemy.enemy(Sprite("Actors/FrankensteinRight.png",8), Sprite("Actors/FrankensteinLeft.png",8),30)
+demon1 = Enemy.enemy(Sprite("Actors/Demon1Right.png", 8), Sprite("Actors/Demon1Left.png", 8),1)
+demon2 =Enemy.enemy(Sprite("Actors/Demon2Right.png", 8), Sprite("Actors/Demon2Left.png", 8),1)
+demon3 =Enemy.enemy(Sprite("Actors/Demon3Right.png", 8), Sprite("Actors/Demon3Left.png", 8),1)
+TheDevil = Enemy.enemy(Sprite("Actors/TheDevilRight.png",8), Sprite("Actors/TheDevilLeft.png",8),40)
 ##
 
 #Variaveis
@@ -31,7 +40,7 @@ initialy = 300
 direction = "r"
 velTiro = 200
 recargaShoot = 0
-recargaEnemies = 0
+recargaEnemies = 3
 tiros = []
 explosoes = []
 enemies = []
@@ -42,12 +51,21 @@ OrcChiefBool = True
 FrankensteinBool = True
 TheDevilBool = True
 Boss = []
+stuckX, stuckY, stuckXBoss,stuckYBoss = False, False, False, False
+waveSprites = [Sprite("Wave/Wave.png"),Sprite("Wave/1.png"),Sprite("Wave/2.png"),Sprite("Wave/3.png"),
+               Sprite("Wave/4.png"),Sprite("Wave/5.png"),Sprite("Wave/6.png"),
+               Sprite("Wave/7.png"),Sprite("Wave/8.png"),Sprite("Wave/9.png"),
+               Sprite("Wave/10.png"),Sprite("Wave/11.png"),Sprite("Wave/12.png"),
+               Sprite("Wave/13.png"),Sprite("Wave/14.png"),Sprite("Wave/15.png")
+               ]
+waveSprites[0].x,waveSprites[0].y = janela.width-waveSprites[0].width-60,25
+for i in range(1,16):
+    waveSprites[i].x,waveSprites[i].y = waveSprites[0].x + waveSprites[0].width + 10,25
 ##
 
 while True:
     ##Variables##
     recargaShoot = recargaShoot + janela.delta_time()
-    recargaEnemies+=janela.delta_time()
     direction = Player.getLastDirection(direction, teclado)
     initialx = Player.movePlayer(initialx, initialy, player.parado_esquerda, janela, teclado)[0]
     initialy = Player.movePlayer(initialx, initialy, player.parado_esquerda, janela, teclado)[1]
@@ -61,13 +79,23 @@ while True:
     if recargaEnemies >2 and enemyCounter<=3 + waveCounter:
         if waveCounter<= 5:
             pick = random.choice([orc1,orc2,orc3])
+        elif waveCounter>5 and waveCounter <=10:
+            pick = random.choice([undead1,undead2,undead3])
+        elif waveCounter>10 and waveCounter<=15:
+            pick = random.choice([demon1,demon2,demon3])
         enemies.append([initialEnemyX,initialEnemyY, pick.direita,pick])
         enemyCounter +=1
         recargaEnemies = 0
     if waveCounter == 5 and OrcChiefBool:
         Boss.append([initialEnemyX,initialEnemyY,OrcChief.direita,OrcChief])
         OrcChiefBool=False
-    if enemyCounter>5 + waveCounter and enemies == []:
+    if waveCounter == 10 and FrankensteinBool:
+        Boss.append([initialEnemyX,initialEnemyY,Frankenstein.direita, Frankenstein])
+        FrankensteinBool=False
+    if waveCounter == 15 and TheDevilBool:
+        Boss.append([initialEnemyX,initialEnemyY,TheDevil.direita, TheDevil])
+        TheDevilBool=False
+    if enemyCounter>3 + waveCounter and enemies == [] and Boss == []:
         waveCounter+=1
         enemyCounter = 0
         speed +=1
@@ -84,5 +112,6 @@ while True:
     Player.getLife(player.life)
     Player.explosoesUpdate(explosoes, janela)
     Player.playerCollideEnemies(player, Player.getPlayerSprite(direction, player, teclado), enemies,Boss, janela)
-    janela.draw_text("Wave" + str(waveCounter), janela.width-40,10, size = 12, color=(255,255,255))
+    waveSprites[0].draw()
+    waveSprites[waveCounter].draw()
     janela.update()

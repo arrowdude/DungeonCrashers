@@ -48,6 +48,7 @@ def getMaximum(initialEnemyX,initialEnemyY, playerX, playerY, Enemy):
                 enemyPosYMaximum = enemyPosYMaximum + 1
     return ([enemyPosXMaximum, enemyPosYMaximum])
 
+
 def moveEnemy(playerX, playerY, initialEnemyX, initialEnemyY, speed, Enemy, sprite, janela):
     maximumXD, maximumYD = getMaximumDiagonal(initialEnemyX, initialEnemyY, playerX, playerY, Enemy)[0], getMaximumDiagonal(initialEnemyX, initialEnemyY, playerX, playerY, Enemy)[1]
     #print("MaximumD: ",maximumXD,maximumYD)
@@ -89,11 +90,13 @@ def moveEnemy(playerX, playerY, initialEnemyX, initialEnemyY, speed, Enemy, spri
             velX = speed
             if not(initialEnemyX >= playerX and initialEnemyX < playerX + Enemy.width):
                 sprite = Enemy.direita
+                
     if not CollisionDC.sceneryCollision(initialEnemyX + velX * janela.delta_time(), initialEnemyY, Enemy) and not CollisionDC.collidedLake(initialEnemyX + velX * janela.delta_time(), initialEnemyY, Enemy):
         initialEnemyX = initialEnemyX + velX*janela.delta_time()
     if not CollisionDC.sceneryCollision(initialEnemyX, initialEnemyY + velY * janela.delta_time(), Enemy) and not CollisionDC.collidedLake(initialEnemyX, initialEnemyY + velY * janela.delta_time(), Enemy):
         initialEnemyY = initialEnemyY+ velY*janela.delta_time()
     return([initialEnemyX,initialEnemyY, sprite, Enemy])
+
 
 
 def updateBossPosition(initialx,initialy,Boss,speed, tiros, explosoes, janela):
