@@ -56,10 +56,16 @@ def moveEnemy(playerX, playerY, initialEnemyX, initialEnemyY, speed, Enemy, spri
     #print("Enemy: ",initialEnemyX,initialEnemyY)
     #print("Player: ",playerX,playerY)
     if (maximumXD >= playerX and initialEnemyX >= playerX) or (maximumXD <= playerX and initialEnemyX <= playerX):
-        if initialEnemyX > 340 and initialEnemyY >= 280 and playerX>=390 and playerY>=2800 and playerY <= initialEnemyY:
-            velY = -speed
-        elif initialEnemyX <=340 and initialEnemyY <=420 and playerY<=initialEnemyY:
-            velY = -speed
+        if playerX >= 370 and playerY >= 284 and initialEnemyX >= 370 and initialEnemyY >= 284:
+            if playerY > initialEnemyY:
+                velY = speed
+            else:
+                velY = -speed
+        elif playerX<370 and initialEnemyX<370:
+            if playerY <=280 and playerX <260:
+                velY = -speed
+            else:
+                velY = speed
         else:
             velY = speed
     else:
@@ -69,18 +75,22 @@ def moveEnemy(playerX, playerY, initialEnemyX, initialEnemyY, speed, Enemy, spri
             velY = speed
 
     if((maximumYD >= playerY and initialEnemyY >= playerY) or (maximumYD <= playerY and initialEnemyY <= playerY)):
-        if initialEnemyX > 340 and initialEnemyY >= 280 and playerX>=390 and playerY>=280 and playerX <= initialEnemyX:
-            velX = -speed
-            if not (initialEnemyX >= playerX and initialEnemyX < playerX + Enemy.width):
+        if playerX>=370 and playerY>=284 and initialEnemyX>=370 and initialEnemyY>=284:
+            if playerX > initialEnemyX:
+                velX = speed
+                if not (initialEnemyX >= playerX and initialEnemyX < playerX + Enemy.width):
                     sprite = Enemy.esquerda
-        elif initialEnemyX <=340 and initialEnemyY <=420 and playerY<=initialEnemyY:
-            velX = -speed
-            if not (initialEnemyX >= playerX and initialEnemyX < playerX + Enemy.width):
-                    sprite = Enemy.esquerda
+            else:
+                velX = -speed
+                if not (initialEnemyX >= playerX and initialEnemyX < playerX + Enemy.width):
+                    sprite = Enemy.direita
+        elif playerX<370 and initialEnemyX<370:
+            if playerY <=280 and playerX <260:
+                velX = -speed
+            else:
+                velX = speed
         else:
             velX = speed
-            if not (initialEnemyX >= playerX and initialEnemyX < playerX + Enemy.width):
-                sprite = Enemy.direita
     else:
         if initialEnemyX >= playerX:
             velX = -speed
@@ -90,7 +100,6 @@ def moveEnemy(playerX, playerY, initialEnemyX, initialEnemyY, speed, Enemy, spri
             velX = speed
             if not(initialEnemyX >= playerX and initialEnemyX < playerX + Enemy.width):
                 sprite = Enemy.direita
-                
     if not CollisionDC.sceneryCollision(initialEnemyX + velX * janela.delta_time(), initialEnemyY, Enemy) and not CollisionDC.collidedLake(initialEnemyX + velX * janela.delta_time(), initialEnemyY, Enemy):
         initialEnemyX = initialEnemyX + velX*janela.delta_time()
     if not CollisionDC.sceneryCollision(initialEnemyX, initialEnemyY + velY * janela.delta_time(), Enemy) and not CollisionDC.collidedLake(initialEnemyX, initialEnemyY + velY * janela.delta_time(), Enemy):
