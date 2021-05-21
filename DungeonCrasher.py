@@ -64,8 +64,12 @@ def main(janela):
         ##Variables##
         if teclado.key_pressed("J"):
             waveCounter = 5
+        if teclado.key_pressed("H"):
+            waveCounter = 6
         elif teclado.key_pressed("K"):
             waveCounter = 10
+        elif teclado.key_pressed("G"):
+            waveCounter = 11
         elif teclado.key_pressed("L"):
             waveCounter = 15
         recargaShoot = recargaShoot + janela.delta_time()
@@ -80,7 +84,7 @@ def main(janela):
         ##
         if mouse.is_button_pressed(BUTTON_LEFT):
             print(mouse.get_position())
-        if recargaEnemies >2 and enemyCounter<=3 + waveCounter:
+        if recargaEnemies >1 and enemyCounter<=4 + waveCounter:
             if waveCounter<= 5:
                 pick = random.choice([orc1,orc2,orc3])
             elif waveCounter>5 and waveCounter <=10:
